@@ -389,6 +389,48 @@ nav.solid {
 .btn:hover { opacity:.85; }
 .fmsg { font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--w4); }
 
+/* ── PREVIOUS EDITIONS ── */
+#previous { border-top:1px solid var(--rule); }
+.prev-header { margin-bottom:72px; }
+.prev-title { font-size:clamp(38px,5.5vw,72px); font-weight:400; line-height:1; letter-spacing:-.02em; margin-bottom:20px; }
+.prev-intro { font-size:18px; font-style:italic; color:var(--w6); max-width:560px; line-height:1.7; }
+
+.timeline { position:relative; margin-bottom:64px; overflow-x:auto; padding-bottom:8px; }
+.tl-line {
+  position:absolute; top:10px; left:0; right:0; height:1px;
+  background:var(--rule);
+}
+.tl-items {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:0; position:relative; min-width:600px;
+}
+.tl-item {
+  padding:40px 0 0; position:relative;
+  padding-right:24px;
+}
+.tl-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--w2); border:1px solid var(--w4);
+  position:absolute; top:6px; left:0;
+  transform:translateY(-50%);
+}
+.tl-dot-next {
+  background:var(--red); border-color:var(--red);
+  width:10px; height:10px; top:5px;
+  box-shadow:0 0 0 3px rgba(196,40,40,.2);
+}
+.tl-date {
+  font-family:var(--mono); font-size:9px; letter-spacing:.15em;
+  color:var(--red); margin-bottom:10px; text-transform:uppercase;
+}
+.tl-city { font-size:clamp(20px,2.5vw,30px); font-weight:400; line-height:1.1; margin-bottom:4px; }
+.tl-country { font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--w4); margin-bottom:10px; text-transform:uppercase; }
+.tl-event { font-size:13px; font-style:italic; color:var(--w4); }
+.tl-next .tl-city { color:var(--white); }
+.tl-next .tl-date { color:var(--red); }
+
+.prev-cta { margin-top:8px; }
+
 /* ── FOOTER ── */
 footer {
   border-top:1px solid var(--rule); padding:40px 52px;
@@ -437,28 +479,36 @@ footer {
   .nlinks { display:none; }
   .hamburger { display:flex; }
 
-  /* immersive — DISABLE sticky scroll on mobile, show static hero */
+  /* cursor — hide on mobile (touch devices don't need it) */
+  #cur { display:none; }
+  body { cursor:auto; }
+  a, button, .space, .role { cursor:pointer; }
+
+  /* hero — move UMBRAL higher on mobile */
   #immersive { height:auto; }
   #stage { position:relative; height:100vh; }
   #l1, #l2, #l3 { display:none; }
-  #l0 { position:relative; height:100vh; }
+  #l0 { position:relative; height:100vh; justify-content:center; }
+  #l0 .ltxt { padding-bottom:0; padding-top:0; justify-content:center; }
   .ll { left:20px; } .lr { right:20px; }
   .umbral-main { font-size:clamp(64px,18vw,120px); }
-  .umbral-tagline { font-size:clamp(12px,3.5vw,16px); }
-  #l0 .ltxt { padding-bottom:18%; }
+  .umbral-tagline { font-size:clamp(12px,3.5vw,16px); margin-top:12px; }
   #content { opacity:1 !important; }
   .sh { display:none; }
 
-  /* content sections */
-  .si { padding:72px 24px; }
-  .sr { margin-bottom:48px; }
-  .why-grid,.exp-hdr,.who-grid,.itin-inner,.contact-grid { grid-template-columns:1fr; gap:40px; }
+  /* content sections — unified */
+  .si { padding:64px 24px; }
+  .sr { margin-bottom:40px; }
+  .why-body { font-size:16px; line-height:1.75; }
+  .why-body p+p { margin-top:18px; }
+  .statement { padding:64px 24px; }
+  .st-inner { flex-direction:column; align-items:flex-start; gap:24px; }
+  .st-aside { text-align:left; font-size:9px; }
+  .why-grid,.exp-hdr,.who-grid,.itin-inner,.contact-grid { grid-template-columns:1fr; gap:36px; }
   .spaces,.roles { grid-template-columns:1fr; }
   .roles { grid-template-columns:1fr 1fr; }
   .space,.role { border-right:none; border-bottom:1px solid var(--rule); }
   .space:last-child,.role:last-child { border-bottom:none; }
-  .st-inner { flex-direction:column; align-items:flex-start; gap:32px; }
-  .st-aside { text-align:left; }
   .wm { display:none; }
   .spaces-foot { flex-direction:column; gap:8px; }
   .itin-cities { margin-top:32px; }
@@ -470,15 +520,17 @@ footer {
 
 @media(max-width:480px){
   nav { padding:18px 20px; }
-  .si { padding:56px 20px; }
+  .si { padding:52px 20px; }
+  .statement { padding:52px 20px; }
   .umbral-main { font-size:clamp(56px,20vw,100px); }
-  .why-title,.exp-title,.who-title,.inv-title,.allies-title,.contact-title,.itin-title { font-size:clamp(32px,10vw,52px); }
-  .st-text { font-size:clamp(28px,9vw,48px); }
-  .space { padding:36px 24px 44px; }
-  .role { padding:36px 24px 44px; }
+  .why-title,.exp-title,.who-title,.inv-title,.allies-title,.contact-title,.itin-title,.prev-title { font-size:clamp(30px,9vw,48px); }
+  .st-text { font-size:clamp(28px,9vw,46px); }
+  .why-body,.obj-body,.who-body,.inv-intro,.contact-sub { font-size:15px; }
+  .space { padding:32px 20px 40px; }
+  .role { padding:32px 20px 40px; }
   .roles { grid-template-columns:1fr; }
-  .allies-box { padding:64px 24px; }
-  .itin-inner { padding:56px 20px; }
+  .allies-box { padding:56px 20px; }
+  .itin-inner { padding:52px 20px; }
 }
 </style>
 </head>
@@ -494,6 +546,7 @@ footer {
     <span class="nword">UMBRAL</span>
   </a>
   <ul class="nlinks">
+    <li><a href="#previous">.editions</a></li>
     <li><a href="#why">.why</a></li>
     <li><a href="#experience">.experience</a></li>
     <li><a href="#who">.about</a></li>
@@ -507,6 +560,7 @@ footer {
 
 <!-- MOBILE NAV -->
 <div class="mobile-nav" id="mnav">
+  <a href="#previous" onclick="closeMnav()">.editions</a>
   <a href="#why"    onclick="closeMnav()">.why</a>
   <a href="#experience" onclick="closeMnav()">.experience</a>
   <a href="#who"    onclick="closeMnav()">.about</a>
@@ -729,6 +783,59 @@ footer {
   </section>
 
   <!-- ITINERANT -->
+  <!-- PREVIOUS EDITIONS -->
+  <section id="previous">
+    <div class="si">
+      <div class="sr">.previous editions</div>
+      <div class="prev-header rv">
+        <h2 class="prev-title">This has happened before.</h2>
+        <p class="prev-intro">Impacto Digital has been building interactive experiences on technology and society since 2018 — in three continents, with thousands of young people.</p>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="timeline rv">
+        <div class="tl-line"></div>
+        <div class="tl-items">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-date">Mar 2018</div>
+            <div class="tl-city">Buenos Aires</div>
+            <div class="tl-country">Argentina</div>
+            <div class="tl-event">Campus Party</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-date">Jul 2019</div>
+            <div class="tl-city">West Virginia</div>
+            <div class="tl-country">USA</div>
+            <div class="tl-event">Leadership Summit</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-date">Nov 2019</div>
+            <div class="tl-city">Doha</div>
+            <div class="tl-country">Qatar</div>
+            <div class="tl-event">WISE Learning Days</div>
+          </div>
+          <div class="tl-item tl-next">
+            <div class="tl-dot tl-dot-next"></div>
+            <div class="tl-date">2027</div>
+            <div class="tl-city">Buenos Aires</div>
+            <div class="tl-country">Argentina</div>
+            <div class="tl-event">UMBRAL · First edition</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prev-cta rv">
+        <a href="fow-xp.html" class="btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:12px;">
+          Learn more
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6h10M6 1l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <div class="itinerant rv">
     <div class="itin-inner">
       <div>
@@ -851,7 +958,9 @@ footer {
           <p class="contact-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e988858f86879a86a9808499888a9d868d808e809d8885c7869b8e">[email&#160;protected]</a></p>
         </div>
         <div class="rv d1">
-          <form class="form" onsubmit="handleSub(event)">
+          <form class="form" action="https://formspree.io/f/mdawyvwe" method="POST">
+            <input type="hidden" name="_subject" value="UMBRAL — New contact">
+            <input type="hidden" name="_replyto" value="flor@impactodigital.org">
             <div class="field">
               <label>Name</label>
               <input type="text" placeholder="Your name" required>
@@ -920,16 +1029,18 @@ ham.addEventListener('click', () => {
   mnav.classList.toggle('open');
 });
 
-// ── Cursor
+// ── Cursor (desktop only)
 const cur = document.getElementById('cur');
-document.addEventListener('mousemove', e => {
-  cur.style.left = e.clientX + 'px';
-  cur.style.top  = e.clientY + 'px';
-});
-document.querySelectorAll('a,button,.space,.role').forEach(el => {
-  el.addEventListener('mouseenter', () => cur.style.transform = 'translate(-50%,-50%) scale(5)');
-  el.addEventListener('mouseleave', () => cur.style.transform = 'translate(-50%,-50%) scale(1)');
-});
+if (!isMobile) {
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX + 'px';
+    cur.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,button,.space,.role').forEach(el => {
+    el.addEventListener('mouseenter', () => cur.style.transform = 'translate(-50%,-50%) scale(5)');
+    el.addEventListener('mouseleave', () => cur.style.transform = 'translate(-50%,-50%) scale(1)');
+  });
+}
 
 // ── Mobile detection — skip immersive scroll engine
 const isMobile = window.innerWidth <= 860;
@@ -1058,13 +1169,37 @@ if (isMobile) {
   }, { passive:true });
 }
 
-// ── Form
-function handleSub(e) {
-  e.preventDefault();
-  const m = document.getElementById('fmsg');
-  m.textContent = "Sent. We'll be in touch.";
-  e.target.reset();
-  setTimeout(() => m.textContent = '', 5000);
+// ── Form — Formspree async submit
+const formEl = document.querySelector('.form');
+if (formEl) {
+  formEl.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = formEl.querySelector('button[type="submit"]');
+    const msg = document.getElementById('fmsg');
+    btn.textContent = 'Sending...';
+    btn.style.opacity = '.6';
+    try {
+      const res = await fetch(formEl.action, {
+        method: 'POST',
+        body: new FormData(formEl),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        msg.textContent = "Sent. We'll be in touch.";
+        msg.style.color = 'var(--w6)';
+        formEl.reset();
+      } else {
+        msg.textContent = 'Something went wrong. Email us directly.';
+        msg.style.color = 'var(--red)';
+      }
+    } catch {
+      msg.textContent = 'Connection error. Please try again.';
+      msg.style.color = 'var(--red)';
+    }
+    btn.textContent = 'Send message';
+    btn.style.opacity = '1';
+    setTimeout(() => msg.textContent = '', 6000);
+  });
 }
 </script>
 </body>
