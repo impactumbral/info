@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UMBRAL — Technology & Society</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --black:  #050505;
+  --black2: #0a0a0a;
+  --red:    #c42828;
+  --white:  #ece8df;
+  --w8: rgba(236,232,223,.8);
+  --w6: rgba(236,232,223,.6);
+  --w4: rgba(236,232,223,.4);
+  --w2: rgba(236,232,223,.2);
+  --w1: rgba(236,232,223,.1);
+  --w05:rgba(236,232,223,.05);
+  --rule:rgba(236,232,223,.08);
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+
+html { background:var(--black); scroll-behavior:smooth; }
+
+body {
+  background:var(--black);
+  color:var(--white);
+  font-family:var(--serif);
+  overflow-x:hidden;
+  cursor:none;
+  /* immersive section scroll height + content */
+}
+
+/* ── CURSOR ── */
+#cur {
+  position:fixed; width:7px; height:7px;
+  background:var(--red); border-radius:50%;
+  pointer-events:none; z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform .15s;
+  mix-blend-mode:normal;
+}
+
+/* ── PROGRESS ── */
+#bar {
+  position:fixed; top:0; left:0; height:2px;
+  background:var(--red); z-index:1000; width:0%;
+  transition:width .05s linear;
+}
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:600;
+  padding:24px 52px;
+  display:flex; justify-content:space-between; align-items:center;
+  pointer-events:none;
+  transition:background .4s, border-color .4s;
+  border-bottom:1px solid transparent;
+}
+nav.solid {
+  background:rgba(5,5,5,.92);
+  border-color:var(--rule);
+  backdrop-filter:blur(12px);
+  pointer-events:all;
+}
+.nlogo {
+  display:flex; align-items:center; gap:8px;
+  text-decoration:none; pointer-events:all;
+}
+.ndot { width:7px; height:7px; border-radius:50%; background:var(--red); flex-shrink:0; }
+.nword { font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--white); }
+.nlinks { display:flex; gap:36px; list-style:none; }
+.nlinks a {
+  font-family:var(--mono); font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--w8); text-decoration:none;
+  transition:color .2s;
+}
+.nlinks a:hover { color:var(--white); }
+
+/* ══════════════════════════════════
+   IMMERSIVE SECTION
+══════════════════════════════════ */
+#immersive {
+  height:600vh; /* scroll room */
+  position:relative;
+}
+
+/* fixed stage */
+#stage {
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* every layer: full viewport, stacked in z */
+.layer {
+  position:absolute;
+  inset:0;
+  will-change:transform,opacity;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* subtle vignette on all layers */
+.vig {
+  position:absolute; inset:0; pointer-events:none; z-index:2;
+  background:radial-gradient(ellipse at center, transparent 30%, rgba(5,5,5,.8) 100%);
+}
+
+/* ── LAYER TEXT ── */
+.ltxt {
+  position:absolute; inset:0; z-index:10;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+  padding:0 48px;
+  pointer-events:none;
+}
+
+.poem {
+  font-family:var(--serif);
+  font-size:clamp(28px, 4.5vw, 58px);
+  font-weight:400;
+  font-style:italic;
+  line-height:1.3;
+  color:var(--white);
+  letter-spacing:.01em;
+  max-width:680px;
+}
+
+/* ── LAYER 0: ENTRY / UMBRAL TITLE ── */
+#l0 { z-index:50; background:var(--black); }
+
+#l0 .ltxt { justify-content:flex-end; padding-bottom:14%; }
+
+.umbral-main {
+  font-family:var(--serif);
+  font-size:clamp(80px,14vw,180px);
+  font-weight:400;
+  letter-spacing:-.02em;
+  line-height:.9;
+  color:var(--white);
+  will-change:transform,opacity;
+}
+
+.umbral-tagline {
+  font-family:var(--serif); font-style:italic;
+  font-size:clamp(15px,1.8vw,22px);
+  color:var(--w4); margin-top:14px; letter-spacing:.02em;
+}
+
+/* the two logo lines */
+.logo-lines {
+  position:absolute;
+  top:0; bottom:0; width:100%;
+  pointer-events:none; z-index:3;
+}
+.ll, .lr {
+  position:absolute; top:0; bottom:0; width:1.5px;
+  background:var(--white); opacity:0;
+  transform:scaleY(0); transform-origin:top;
+  transition:transform 1.1s cubic-bezier(.16,1,.3,1), opacity .6s ease;
+}
+.ll { left:52px; }
+.lr { right:52px; transition-delay:.12s; }
+.ll.show, .lr.show { transform:scaleY(1); opacity:.12; }
+
+/* scroll hint */
+.sh {
+  position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:8px; letter-spacing:.2em;
+  color:var(--w2); z-index:20; opacity:0; transition:opacity .6s;
+}
+.sh.show { opacity:1; }
+.shline {
+  width:1px; height:32px; background:var(--w2);
+  animation:sha 2s ease-in-out infinite;
+}
+@keyframes sha {
+  0%  {transform:scaleY(0);transform-origin:top}
+  49% {transform:scaleY(1);transform-origin:top}
+  50% {transform:scaleY(1);transform-origin:bottom}
+  100%{transform:scaleY(0);transform-origin:bottom}
+}
+
+/* ── LAYER 1: SYSTEMS ── */
+#l1 { z-index:40; background:var(--black); transform:scale(.08); opacity:0; }
+
+/* network SVG */
+#l1 svg { position:absolute; inset:0; width:100%; height:100%; }
+
+/* ── LAYER 2: CONSEQUENCES ── */
+#l2 { z-index:30; background:var(--black); transform:scale(.005); opacity:0; }
+
+#l2 svg { position:absolute; inset:0; width:100%; height:100%; }
+
+/* ── LAYER 3: THRESHOLD ── */
+#l3 { z-index:20; background:#030303; transform:scale(.0003); opacity:0; }
+
+#l3 svg { position:absolute; inset:0; width:100%; height:100%; }
+
+#l3 .poem {
+  font-size:clamp(32px,5.5vw,70px);
+  font-weight:300;
+  font-style:italic;
+  line-height:1.15;
+}
+
+/* ══════════════════════════════════
+   FUNDRAISING SECTIONS
+   fade in after immersive
+══════════════════════════════════ */
+#content {
+  position:relative; z-index:1;
+  opacity:0;
+  transition:opacity 1.2s ease;
+}
+#content.show { opacity:1; }
+
+/* SHARED */
+.si { max-width:1160px; margin:0 auto; padding:120px 52px; position:relative; }
+.sr {
+  display:flex; align-items:center; gap:14px;
+  font-family:var(--mono); font-size:9px; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--red); margin-bottom:72px;
+}
+.sr::after { content:''; flex:1; height:1px; background:var(--rule); max-width:140px; }
+
+.rv { opacity:0; transform:translateY(22px); transition:opacity .75s ease, transform .75s ease; }
+.rv.on { opacity:1; transform:translateY(0); }
+.rv.d1 { transition-delay:.1s; }
+.rv.d2 { transition-delay:.2s; }
+
+.wm {
+  position:absolute; font-family:var(--serif); font-weight:400;
+  color:rgba(236,232,223,.035); line-height:1;
+  pointer-events:none; user-select:none; letter-spacing:-.04em;
+}
+.hl { background:var(--red); color:var(--white); padding:1px 6px; }
+
+/* ── WHY ── */
+#why { border-top:1px solid var(--rule); }
+.why-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.why-title { font-size:clamp(38px,5.5vw,72px); font-weight:400; line-height:1; letter-spacing:-.02em; }
+.why-body { font-size:19px; line-height:1.8; color:var(--w6); }
+.why-body p+p { margin-top:28px; }
+.why-body strong { color:var(--white); font-style:italic; font-weight:400; }
+
+/* ── STATEMENT ── */
+.statement {
+  border-top:1px solid var(--rule); background:var(--black2);
+  padding:100px 52px; position:relative; overflow:hidden;
+}
+.st-inner { max-width:1160px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; gap:40px; }
+.st-text {
+  font-family:var(--serif); font-size:clamp(36px,6vw,82px);
+  font-weight:400; line-height:.92; letter-spacing:-.025em; max-width:820px;
+}
+.st-text span { color:var(--red); }
+.st-aside { font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--w2); line-height:2.2; text-align:right; flex-shrink:0; }
+.pc { position:absolute; width:10px; height:10px; background:var(--red); }
+.pc.tl { top:0; left:0; }
+.pc.br { bottom:0; right:0; }
+
+/* ── EXPERIENCE ── */
+#experience { border-top:1px solid var(--rule); background:var(--black2); }
+.exp-hdr { display:grid; grid-template-columns:1fr 1fr; gap:80px; margin-bottom:64px; align-items:end; }
+.exp-title { font-size:clamp(38px,5.5vw,72px); font-weight:400; line-height:1; letter-spacing:-.02em; }
+.exp-desc { font-size:18px; line-height:1.8; color:var(--w6); font-style:italic; }
+
+.spaces { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--rule); }
+.space {
+  padding:52px 36px 60px; border-right:1px solid var(--rule);
+  position:relative; overflow:hidden; transition:background .25s; cursor:none;
+}
+.space:last-child { border-right:none; }
+.space:hover { background:var(--w05); }
+.space::before { content:''; position:absolute; top:0; right:0; width:10px; height:10px; background:var(--red); }
+.swm {
+  position:absolute; bottom:-20px; right:8px;
+  font-family:var(--serif); font-size:130px; font-weight:400;
+  color:rgba(236,232,223,.04); line-height:1; pointer-events:none; letter-spacing:-.04em;
+}
+.snum { font-family:var(--mono); font-size:9px; letter-spacing:.18em; color:var(--red); margin-bottom:40px; }
+.sname { font-size:clamp(34px,3.8vw,50px); font-weight:400; letter-spacing:-.02em; line-height:1; margin-bottom:22px; }
+.sdash { width:18px; height:2px; background:var(--red); margin-bottom:20px; }
+.sbody { font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--w4); }
+.spaces-foot {
+  border:1px solid var(--rule); border-top:none; padding:20px 36px;
+  display:flex; justify-content:space-between;
+  font-family:var(--mono); font-size:9px; letter-spacing:.12em; color:var(--w2);
+}
+
+/* ── ITINERANT ── */
+.itinerant { border-top:1px solid var(--rule); background:var(--red); }
+.itin-inner {
+  max-width:1160px; margin:0 auto; padding:80px 52px;
+  display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;
+}
+.itin-lbl { font-family:var(--mono); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:rgba(5,5,5,.45); margin-bottom:22px; }
+.itin-title { font-size:clamp(36px,5.5vw,72px); font-weight:400; line-height:.95; letter-spacing:-.02em; color:var(--black); margin-bottom:32px; }
+.itin-body { font-size:18px; line-height:1.75; color:rgba(5,5,5,.65); }
+.itin-body p+p { margin-top:18px; }
+.itin-body strong { color:var(--black); }
+.itin-cities { display:flex; flex-direction:column; margin-top:40px; }
+.icity {
+  padding:18px 0; border-bottom:1px solid rgba(5,5,5,.15);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.icity:first-child { border-top:1px solid rgba(5,5,5,.15); }
+.icity-name { font-size:22px; font-weight:400; color:var(--black); }
+.icity-tag { font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:rgba(5,5,5,.45); text-transform:uppercase; }
+.icity.tbd .icity-name { color:rgba(5,5,5,.3); font-style:italic; font-weight:400; }
+
+/* ── WHO ── */
+#who { border-top:1px solid var(--rule); }
+.who-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.who-title { font-size:clamp(38px,5.5vw,72px); font-weight:400; line-height:1; letter-spacing:-.02em; }
+.who-body { font-size:19px; line-height:1.8; color:var(--w6); }
+.who-body p+p { margin-top:24px; }
+.who-body strong { color:var(--white); font-style:italic; font-weight:400; }
+.who-link {
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--mono); font-size:10px; letter-spacing:.15em;
+  color:var(--w4); text-decoration:none; margin-top:32px; transition:color .2s;
+}
+.who-link:hover { color:var(--white); }
+.who-link::after { content:'→'; }
+
+/* ── INVOLVED ── */
+#involved { border-top:1px solid var(--rule); background:var(--black2); }
+.inv-title { font-size:clamp(38px,5.5vw,72px); font-weight:400; line-height:1; letter-spacing:-.02em; margin-bottom:20px; max-width:680px; }
+.inv-intro { font-size:19px; font-style:italic; color:var(--w6); max-width:540px; margin-bottom:72px; }
+.roles { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--rule); }
+.role {
+  padding:48px 36px 56px; border-right:1px solid var(--rule);
+  position:relative; transition:background .25s; cursor:none;
+}
+.role:last-child { border-right:none; }
+.role:hover { background:var(--w05); }
+.role::before {
+  content:''; position:absolute; top:0; left:0; width:100%; height:3px;
+  background:var(--red); transform:scaleX(0); transform-origin:left; transition:transform .3s;
+}
+.role:hover::before { transform:scaleX(1); }
+.rnum { font-family:var(--mono); font-size:9px; letter-spacing:.18em; color:var(--w2); margin-bottom:36px; }
+.rtitle { font-size:clamp(28px,3vw,40px); font-weight:400; letter-spacing:-.02em; margin-bottom:20px; line-height:1; }
+.rbody { font-size:15px; line-height:1.75; color:var(--w6); }
+
+/* ── ALLIES ── */
+#allies { border-top:1px solid var(--rule); }
+.allies-title { font-size:clamp(38px,5.5vw,72px); font-weight:400; line-height:1; letter-spacing:-.02em; margin-bottom:64px; }
+.allies-box {
+  border:1px solid var(--rule); padding:100px 48px;
+  text-align:center; display:flex; flex-direction:column; align-items:center; gap:18px;
+}
+.allies-muted { font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--w2); }
+.allies-cta { font-style:italic; font-size:21px; color:var(--w6); }
+.allies-dot { width:6px; height:6px; border-radius:50%; background:var(--red); }
+
+/* ── CONTACT ── */
+#contact { border-top:1px solid var(--rule); }
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:100px; align-items:start; }
+.contact-title { font-size:clamp(38px,5vw,64px); font-weight:400; line-height:1.05; letter-spacing:-.02em; margin-bottom:24px; }
+.contact-sub { font-size:18px; font-style:italic; color:var(--w6); line-height:1.65; margin-bottom:40px; }
+.contact-email { font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--w4); }
+.form { display:flex; flex-direction:column; }
+.field { border-bottom:1px solid var(--rule); padding:22px 0; transition:border-color .3s; }
+.field:focus-within { border-color:var(--red); }
+.field label { display:block; font-family:var(--mono); font-size:8px; letter-spacing:.22em; text-transform:uppercase; color:var(--w2); margin-bottom:8px; }
+.field input, .field textarea, .field select {
+  width:100%; background:transparent; border:none; outline:none;
+  font-family:var(--serif); font-size:17px; color:var(--white); resize:none;
+}
+.field select option { background:#111; }
+.field textarea { min-height:68px; }
+.fsub { margin-top:36px; display:flex; align-items:center; gap:18px; }
+.btn {
+  font-family:var(--mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase;
+  background:var(--red); color:var(--white); border:none; padding:16px 36px;
+  cursor:none; transition:opacity .2s;
+}
+.btn:hover { opacity:.85; }
+.fmsg { font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--w4); }
+
+/* ── FOOTER ── */
+footer {
+  border-top:1px solid var(--rule); padding:40px 52px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.fl { display:flex; align-items:center; gap:9px; }
+.flvl { width:1.5px; height:26px; background:var(--w2); }
+.fln { font-family:var(--mono); font-size:11px; font-weight:400; letter-spacing:.25em; text-transform:uppercase; color:var(--w2); }
+.fid { font-family:var(--mono); font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:var(--w2); line-height:1.8; text-align:center; }
+.fr { font-family:var(--mono); font-size:8px; letter-spacing:.12em; color:var(--w2); text-align:right; line-height:2; }
+
+/* ── HAMBURGER ── */
+.hamburger {
+  display:none; flex-direction:column; gap:5px;
+  background:none; border:none; cursor:none;
+  padding:4px; pointer-events:all;
+}
+.hamburger span {
+  display:block; width:22px; height:1.5px;
+  background:var(--white); transition:transform .3s, opacity .3s;
+}
+.hamburger.open span:nth-child(1) { transform:translateY(6.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity:0; }
+.hamburger.open span:nth-child(3) { transform:translateY(-6.5px) rotate(-45deg); }
+
+/* mobile nav drawer */
+.mobile-nav {
+  display:none;
+  position:fixed; inset:0; z-index:400;
+  background:rgba(5,5,5,.97);
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:32px;
+}
+.mobile-nav.open { display:flex; }
+.mobile-nav a {
+  font-family:var(--mono); font-size:14px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--w6); text-decoration:none;
+  transition:color .2s;
+}
+.mobile-nav a:hover { color:var(--white); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  /* nav */
+  nav { padding:20px 24px; pointer-events:all; }
+  .nlinks { display:none; }
+  .hamburger { display:flex; }
+
+  /* immersive */
+  #immersive { height:400vh; }
+  .ll { left:20px; } .lr { right:20px; }
+  .umbral-main { font-size:clamp(64px,18vw,120px); }
+  .umbral-tagline { font-size:clamp(12px,3.5vw,16px); }
+  #l0 .ltxt { padding-bottom:18%; }
+  .poem { font-size:clamp(22px,6vw,38px); padding:0 24px; }
+  #l3-txt p { font-size:clamp(26px,7vw,44px) !important; }
+
+  /* content sections */
+  .si { padding:72px 24px; }
+  .sr { margin-bottom:48px; }
+  .why-grid,.exp-hdr,.who-grid,.itin-inner,.contact-grid { grid-template-columns:1fr; gap:40px; }
+  .spaces,.roles { grid-template-columns:1fr; }
+  .roles { grid-template-columns:1fr 1fr; }
+  .space,.role { border-right:none; border-bottom:1px solid var(--rule); }
+  .space:last-child,.role:last-child { border-bottom:none; }
+  .st-inner { flex-direction:column; align-items:flex-start; gap:32px; }
+  .st-aside { text-align:left; }
+  .wm { display:none; }
+  .spaces-foot { flex-direction:column; gap:8px; }
+  .itin-cities { margin-top:32px; }
+
+  /* footer */
+  footer { flex-direction:column; gap:20px; text-align:center; padding:32px 24px; }
+  .fr,.fid { text-align:center; }
+}
+
+@media(max-width:480px){
+  nav { padding:18px 20px; }
+  .si { padding:56px 20px; }
+  .umbral-main { font-size:clamp(56px,20vw,100px); }
+  .why-title,.exp-title,.who-title,.inv-title,.allies-title,.contact-title,.itin-title { font-size:clamp(32px,10vw,52px); }
+  .st-text { font-size:clamp(28px,9vw,48px); }
+  .space { padding:36px 24px 44px; }
+  .role { padding:36px 24px 44px; }
+  .roles { grid-template-columns:1fr; }
+  .allies-box { padding:64px 24px; }
+  .itin-inner { padding:56px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="bar"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nlogo">
+    <div class="ndot"></div>
+    <span class="nword">UMBRAL</span>
+  </a>
+  <ul class="nlinks">
+    <li><a href="#why">.why</a></li>
+    <li><a href="#experience">.experience</a></li>
+    <li><a href="#who">.about</a></li>
+    <li><a href="#involved">.get involved</a></li>
+    <li><a href="#contact">.contact</a></li>
+  </ul>
+  <button class="hamburger" id="ham" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mnav">
+  <a href="#why"    onclick="closeMnav()">.why</a>
+  <a href="#experience" onclick="closeMnav()">.experience</a>
+  <a href="#who"    onclick="closeMnav()">.about</a>
+  <a href="#involved" onclick="closeMnav()">.get involved</a>
+  <a href="#contact" onclick="closeMnav()">.contact</a>
+</div>
+
+<!-- ══════════════════════════
+     IMMERSIVE SCROLL SECTION
+══════════════════════════ -->
+<div id="immersive">
+  <div id="stage">
+
+    <!-- LAYER 0: ENTRY -->
+    <div class="layer" id="l0">
+      <div class="logo-lines">
+        <div class="ll" id="ll"></div>
+        <div class="lr" id="lr"></div>
+      </div>
+      <div class="vig"></div>
+      <div class="ltxt">
+        <div class="umbral-main" id="utitle">UMBRAL</div>
+        <div class="umbral-tagline" id="utagline">An interactive experience on technology and society</div>
+      </div>
+      <div class="sh" id="sh0">
+        <div class="shline"></div>
+        <span>scroll</span>
+      </div>
+    </div>
+
+    <!-- LAYER 1: SYSTEMS -->
+    <div class="layer" id="l1">
+      <!-- subtle network — very faint -->
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" opacity=".22">
+          <!-- organic lines becoming network -->
+          <path d="M180,900 Q200,810 165,725 Q138,648 178,572 Q212,500 228,440 Q255,370 310,290" stroke="#1a3a28" stroke-width="1.2"/>
+          <path d="M380,900 Q362,814 398,728 Q424,648 380,558 Q344,476 362,406 Q382,336 430,265" stroke="#1a3a28" stroke-width="1.2"/>
+          <path d="M680,900 Q698,822 662,740 Q634,658 668,574 Q700,492 695,420 Q688,346 710,275" stroke="#1a3a28" stroke-width="1"/>
+          <path d="M1000,900 Q978,818 1012,735 Q1038,655 998,568 Q962,486 980,415 Q998,344 1025,275" stroke="#1a3a28" stroke-width="1"/>
+          <path d="M1260,900 Q1278,820 1244,738 Q1218,656 1256,572 Q1288,494 1280,424 Q1270,348 1292,280" stroke="#1a3a28" stroke-width="1"/>
+          <!-- network -->
+          <line x1="310" y1="290" x2="450" y2="228" stroke="#1e4070" stroke-width="1"/>
+          <line x1="430" y1="265" x2="450" y2="228" stroke="#1e4070" stroke-width="1"/>
+          <line x1="450" y1="228" x2="600" y2="178" stroke="#2a5a9a" stroke-width="1.2"/>
+          <line x1="450" y1="228" x2="565" y2="308" stroke="#2a5a9a" stroke-width="1"/>
+          <line x1="710" y1="275" x2="600" y2="178" stroke="#2a5a9a" stroke-width="1.2"/>
+          <line x1="600" y1="178" x2="770" y2="145" stroke="#336ab8" stroke-width="1.4"/>
+          <line x1="600" y1="178" x2="710" y2="295" stroke="#336ab8" stroke-width="1"/>
+          <line x1="770" y1="145" x2="945" y2="168" stroke="#3a77cc" stroke-width="1.4"/>
+          <line x1="770" y1="145" x2="838" y2="285" stroke="#3a77cc" stroke-width="1"/>
+          <line x1="1025" y1="275" x2="945" y2="168" stroke="#3a77cc" stroke-width="1.2"/>
+          <line x1="945" y1="168" x2="1085" y2="135" stroke="#4488dd" stroke-width="1.4"/>
+          <line x1="945" y1="168" x2="1005" y2="305" stroke="#4488dd" stroke-width="1"/>
+          <line x1="1085" y1="135" x2="1225" y2="184" stroke="#4488dd" stroke-width="1.2"/>
+          <line x1="1292" y1="280" x2="1225" y2="184" stroke="#4488dd" stroke-width="1"/>
+          <line x1="565" y1="308" x2="710" y2="295" stroke="#2a5a9a" stroke-width=".8"/>
+          <line x1="710" y1="295" x2="838" y2="285" stroke="#2a5a9a" stroke-width=".8"/>
+          <line x1="838" y1="285" x2="1005" y2="305" stroke="#2a5a9a" stroke-width=".8"/>
+          <!-- nodes -->
+          <circle cx="450"  cy="228" r="4"   fill="#2a5a9a"/>
+          <circle cx="600"  cy="178" r="5"   fill="#336ab8"/>
+          <circle cx="770"  cy="145" r="6.5" fill="#3a77cc"/>
+          <circle cx="945"  cy="168" r="5"   fill="#3a77cc"/>
+          <circle cx="1085" cy="135" r="4.5" fill="#4488dd"/>
+          <circle cx="1225" cy="184" r="3.5" fill="#4488dd"/>
+          <circle cx="565"  cy="308" r="3"   fill="#2a5a9a"/>
+          <circle cx="710"  cy="295" r="3"   fill="#2a5a9a"/>
+          <circle cx="838"  cy="285" r="3"   fill="#2a5a9a"/>
+          <circle cx="1005" cy="305" r="3"   fill="#2a5a9a"/>
+          <!-- pulse -->
+          <circle cx="770" cy="145" r="14" stroke="#3a77cc" stroke-width=".5" opacity=".4"/>
+          <circle cx="770" cy="145" r="28" stroke="#3a77cc" stroke-width=".3" opacity=".18"/>
+          <circle cx="770" cy="145" r="46" stroke="#3a77cc" stroke-width=".15" opacity=".08"/>
+        </g>
+      </svg>
+      <div class="vig"></div>
+    </div>
+
+    <!-- LAYER 2: CONSEQUENCES -->
+    <div class="layer" id="l2">
+      <!-- very faint figures + wave -->
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" opacity=".18">
+          <!-- figure left — present -->
+          <circle cx="360" cy="310" r="24" stroke="#9966bb" stroke-width="1"/>
+          <line x1="360" y1="334" x2="360" y2="460" stroke="#9966bb" stroke-width="1"/>
+          <line x1="360" y1="378" x2="320" y2="420" stroke="#9966bb" stroke-width="1"/>
+          <line x1="360" y1="378" x2="400" y2="420" stroke="#9966bb" stroke-width="1"/>
+          <line x1="360" y1="460" x2="335" y2="540" stroke="#9966bb" stroke-width="1"/>
+          <line x1="360" y1="460" x2="385" y2="540" stroke="#9966bb" stroke-width="1"/>
+          <!-- figure center — erased -->
+          <circle cx="720" cy="310" r="24" stroke="#553366" stroke-width="1" stroke-dasharray="5,4" opacity=".5"/>
+          <line x1="694" y1="284" x2="746" y2="336" stroke="#cc2a2a" stroke-width="1.2" opacity=".7"/>
+          <line x1="746" y1="284" x2="694" y2="336" stroke="#cc2a2a" stroke-width="1.2" opacity=".7"/>
+          <!-- figure right — present -->
+          <circle cx="1080" cy="310" r="24" stroke="#7755aa" stroke-width="1"/>
+          <line x1="1080" y1="334" x2="1080" y2="460" stroke="#7755aa" stroke-width="1"/>
+          <line x1="1080" y1="378" x2="1040" y2="420" stroke="#7755aa" stroke-width="1"/>
+          <line x1="1080" y1="378" x2="1120" y2="420" stroke="#7755aa" stroke-width="1"/>
+          <line x1="1080" y1="460" x2="1055" y2="540" stroke="#7755aa" stroke-width="1"/>
+          <line x1="1080" y1="460" x2="1105" y2="540" stroke="#7755aa" stroke-width="1"/>
+          <!-- temperature line -->
+          <path d="M100,640 Q200,632 300,625 Q400,616 500,602 Q600,584 700,558 Q800,525 900,482 Q1000,428 1100,362 Q1200,288 1300,205 Q1320,188 1340,176"
+            stroke="#cc3322" stroke-width="1.5" opacity=".5"/>
+          <!-- amplified wave -->
+          <ellipse cx="260" cy="730" rx="60" ry="110" stroke="#cc8833" stroke-width="1" opacity=".6"/>
+          <ellipse cx="260" cy="730" rx="110" ry="190" stroke="#cc8833" stroke-width=".6" opacity=".3"/>
+          <!-- suppressed -->
+          <ellipse cx="720" cy="730" rx="14" ry="24" stroke="#664422" stroke-width=".8" opacity=".5"/>
+          <line x1="720" y1="706" x2="720" y2="660" stroke="#cc2a2a" stroke-width="1" opacity=".5"/>
+          <line x1="712" y1="714" x2="728" y2="698" stroke="#cc2a2a" stroke-width="1" opacity=".5"/>
+        </g>
+      </svg>
+      <div class="vig"></div>
+    </div>
+
+    <!-- LAYER 3: THRESHOLD -->
+    <div class="layer" id="l3">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="opacity:.12;">
+        <defs>
+          <pattern id="g3" width="80" height="80" patternUnits="userSpaceOnUse">
+            <path d="M80,0 L0,0 L0,80" fill="none" stroke="#ece8df" stroke-width=".25" opacity=".4"/>
+          </pattern>
+        </defs>
+        <rect width="1440" height="900" fill="url(#g3)"/>
+        <!-- door frame — the logo -->
+        <line x1="620" y1="100" x2="620" y2="800" stroke="#ece8df" stroke-width="1.5" opacity=".6"/>
+        <line x1="820" y1="100" x2="820" y2="800" stroke="#ece8df" stroke-width="1.5" opacity=".6"/>
+      </svg>
+      <div class="vig" style="background:radial-gradient(ellipse at center, transparent 15%, rgba(3,3,3,.9) 100%);"></div>
+      <div class="ltxt" id="l3-txt" style="opacity:0;">
+        <p class="poem" style="font-size:clamp(36px,6.5vw,80px);font-style:normal;">You are standing<br>at the threshold.</p>
+      </div>
+    </div>
+
+  </div><!-- /stage -->
+</div><!-- /immersive -->
+
+<!-- ══════════════════════════
+     FUNDRAISING CONTENT
+══════════════════════════ -->
+<div id="content">
+
+  <!-- WHY -->
+  <section id="why">
+    <div class="si">
+      <div class="sr">.why now</div>
+      <div class="why-grid">
+        <div class="rv">
+          <h2 class="why-title">The debate<br>is happening<br>without you.</h2>
+        </div>
+        <div class="rv d1">
+          <div class="why-body">
+            <p>Somewhere, right now, an algorithm is deciding what you see next.</p>
+            <p>The conversation about that decision — who controls it, who it affects, what it means for democracy, for identity, for the planet — <span class="hl">is happening without you.</span></p>
+            <p>UMBRAL is a space to stand <strong>inside that question.</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATEMENT -->
+  <div class="statement rv">
+    <div class="pc tl"></div>
+    <div class="pc br"></div>
+    <div class="st-inner">
+      <div class="st-text">
+        You won't be<br>looking at<br>technology.<br>
+        <span>You'll be<br>inside it.</span>
+      </div>
+      <div class="st-aside">
+        Interactive experience<br>
+        ——————————<br>
+        Gender · Climate · Democracy<br>
+        ——————————<br>
+        First edition · 2027
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="si">
+      <div class="wm" style="font-size:clamp(130px,20vw,260px);right:-10px;top:60px;">03</div>
+      <div class="sr">.the experience</div>
+      <div class="exp-hdr rv">
+        <h2 class="exp-title">Three spaces.<br>One thread.</h2>
+        <p class="exp-desc">High-level technology installations, data visualization, immersive experiences. Each space takes one dimension of our world and puts technology under the lens.</p>
+      </div>
+      <div class="spaces rv">
+        <div class="space">
+          <div class="swm">01</div>
+          <div class="snum">SPACE 01</div>
+          <h3 class="sname">Gender</h3>
+          <div class="sdash"></div>
+          <p class="sbody">How do algorithms encode bias? Who does technology see — and who does it erase? An immersive exploration of the gendered architectures of digital systems.</p>
+        </div>
+        <div class="space">
+          <div class="swm">02</div>
+          <div class="snum">SPACE 02</div>
+          <h3 class="sname">Climate</h3>
+          <div class="sdash"></div>
+          <p class="sbody">Technology as both cause and solution. Data at scale. What does the climate crisis look like when you can truly see it — with your own hands?</p>
+        </div>
+        <div class="space">
+          <div class="swm">03</div>
+          <div class="snum">SPACE 03</div>
+          <h3 class="sname">Democracy</h3>
+          <div class="sdash"></div>
+          <p class="sbody">Disinformation, surveillance, digital rights. What happens to democratic debate when the infrastructure of public life is privately owned?</p>
+        </div>
+      </div>
+      <div class="spaces-foot rv">
+        <span>Estimated duration: 1 hour</span>
+        <span>Reach out to be part of the process →</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ITINERANT -->
+  <div class="itinerant rv">
+    <div class="itin-inner">
+      <div>
+        <div class="itin-lbl">.touring exhibition</div>
+        <h2 class="itin-title">UMBRAL<br>travels.</h2>
+        <div class="itin-body">
+          <p>UMBRAL is designed to move. Its modular format allows it to adapt to different spaces and update its content in each edition.</p>
+          <p>The goal: bring this conversation to every city that needs it.</p>
+        </div>
+      </div>
+      <div>
+        <div class="itin-cities">
+          <div class="icity">
+            <span class="icity-name">Buenos Aires</span>
+            <span class="icity-tag">First edition · 2027</span>
+          </div>
+          <div class="icity tbd">
+            <span class="icity-name">Next city</span>
+            <span class="icity-tag">To be announced</span>
+          </div>
+          <div class="icity tbd">
+            <span class="icity-name">Next city</span>
+            <span class="icity-tag">To be announced</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHO -->
+  <section id="who">
+    <div class="si">
+      <div class="sr">.impacto digital</div>
+      <div class="who-grid">
+        <div class="rv">
+          <h2 class="who-title">Technology,<br>society,<br>human rights.</h2>
+        </div>
+        <div class="rv d1">
+          <div class="who-body">
+            <p>Impacto Digital works at the intersection of technology, society, and human rights. We build projects that create space for the conversations that matter.</p>
+            <p>UMBRAL is not an exhibition about technology. It's an exhibition about <strong>us</strong> — about what we choose to do with it.</p>
+          </div>
+          <a href="https://impactodigital.org" class="who-link" target="_blank">impactodigital.org</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INVOLVED -->
+  <section id="involved">
+    <div class="si">
+      <div class="wm" style="font-size:clamp(100px,16vw,200px);right:-10px;bottom:-10px;">_</div>
+      <div class="sr">.get involved</div>
+      <div class="rv">
+        <h2 class="inv-title">Four ways<br>to be part of it.</h2>
+        <p class="inv-intro">UMBRAL exists because there are people and institutions who believe this conversation is necessary.</p>
+      </div>
+      <div class="roles rv">
+        <div class="role">
+          <div class="rnum">01 ——</div>
+          <h3 class="rtitle">Fund</h3>
+          <p class="rbody">Foundations, organizations and donors who want to sustain a cultural experience with real impact. Your support makes the exhibition possible.</p>
+        </div>
+        <div class="role">
+          <div class="rnum">02 ——</div>
+          <h3 class="rtitle">Partner</h3>
+          <p class="rbody">Universities, research centers, civil society organizations and tech companies who want to co-create the exhibition and shape its content.</p>
+        </div>
+        <div class="role">
+          <div class="rnum">03 ——</div>
+          <h3 class="rtitle">Sponsor</h3>
+          <p class="rbody">Companies who want to associate their name with a rigorous, independent project that reaches researchers, educators, policy makers and the general public.</p>
+        </div>
+        <div class="role">
+          <div class="rnum">04 ——</div>
+          <h3 class="rtitle">Host</h3>
+          <p class="rbody">Museums, cultural centers and institutions interested in hosting UMBRAL. We're looking for spaces that believe in the power of experiential, participatory culture.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALLIES -->
+  <section id="allies">
+    <div class="si">
+      <div class="sr">.allies</div>
+      <div class="rv">
+        <h2 class="allies-title">Building<br>together.</h2>
+      </div>
+      <div class="allies-box rv">
+        <p class="allies-muted">Alliance logos will appear here</p>
+        <p class="allies-cta">Should your organization be here? Let's talk.</p>
+        <div class="allies-dot"></div>
+      </div>
+
+      <!-- DOWNLOAD BRIEF -->
+      <div class="rv" style="margin-top:64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px;padding:40px;border:1px solid var(--rule);">
+        <div>
+          <p style="font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:10px;">.conceptual brief</p>
+          <p style="font-size:clamp(20px,3vw,28px);font-weight:400;line-height:1.2;">Download the full brief<br>to learn more about UMBRAL.</p>
+        </div>
+        <a href="brief_umbral_v2.docx" download class="btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:12px;white-space:nowrap;">
+          Download brief
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 1v8M3.5 6l3.5 3.5L10.5 6M1 11h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="si">
+      <div class="sr">.let's talk</div>
+      <div class="contact-grid">
+        <div class="rv">
+          <h2 class="contact-title">Let's build<br>this together.</h2>
+          <p class="contact-sub">Whether you want to fund, partner, sponsor, or simply learn more — we'd like to hear from you.</p>
+          <p class="contact-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e988858f86879a86a9808499888a9d868d808e809d8885c7869b8e">[email&#160;protected]</a></p>
+        </div>
+        <div class="rv d1">
+          <form class="form" onsubmit="handleSub(event)">
+            <div class="field">
+              <label>Name</label>
+              <input type="text" placeholder="Your name" required>
+            </div>
+            <div class="field">
+              <label>Organization</label>
+              <input type="text" placeholder="Where you work">
+            </div>
+            <div class="field">
+              <label>How you'd like to get involved</label>
+              <select>
+                <option value="" disabled selected>Select one</option>
+                <option>Fund the project</option>
+                <option>Become a partner</option>
+                <option>Sponsor the exhibition</option>
+                <option>Host the exhibition</option>
+                <option>Learn more</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Message</label>
+              <textarea placeholder="Tell us more..." rows="3"></textarea>
+            </div>
+            <div class="fsub">
+              <button type="submit" class="btn">Send message</button>
+              <span class="fmsg" id="fmsg"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="fl">
+      <div class="flvl"></div>
+      <span class="fln">Umbral</span>
+      <div class="flvl"></div>
+    </div>
+    <div class="fid">impacto<br>digital</div>
+    <div class="fr">
+      An interactive experience<br>
+      on technology and society<br>
+      First edition · 2027 · Buenos Aires
+    </div>
+  </footer>
+
+</div><!-- /content -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── Hamburger menu
+const ham  = document.getElementById('ham');
+const mnav = document.getElementById('mnav');
+function closeMnav() {
+  ham.classList.remove('open');
+  mnav.classList.remove('open');
+}
+ham.addEventListener('click', () => {
+  ham.classList.toggle('open');
+  mnav.classList.toggle('open');
+});
+
+// ── Cursor
+const cur = document.getElementById('cur');
+document.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX + 'px';
+  cur.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a,button,.space,.role').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.style.transform = 'translate(-50%,-50%) scale(5)');
+  el.addEventListener('mouseleave', () => cur.style.transform = 'translate(-50%,-50%) scale(1)');
+});
+
+// ── Entrance animation
+window.addEventListener('load', () => {
+  // lines
+  setTimeout(() => {
+    document.getElementById('ll').classList.add('show');
+    document.getElementById('lr').classList.add('show');
+  }, 200);
+  // title
+  gsap.from('#utitle',   { scale:.14, opacity:0, duration:1.6, ease:'expo.out', delay:.3 });
+  gsap.from('#utagline', { opacity:0, y:8, duration:1, ease:'power2.out', delay:1.5 });
+  setTimeout(() => document.getElementById('sh0').classList.add('show'), 2200);
+});
+
+// ── Scroll engine
+const SCENE_COUNT = 4; // l0 + 3 layers
+const IMMER_HEIGHT = document.getElementById('immersive').offsetHeight;
+const WIN_H = window.innerHeight;
+
+// layer configs: [scale_start, zoom_entry_start, text_show, zoom_out_start]
+// all as fractions of total immersive scroll (0→1)
+const CFG = [
+  // l0 exits from 0 → 0.25
+  null,
+  { id:'l1', txt:null, s0:.08,   entry:0,    textIn:.14, exit:.22 },
+  { id:'l2', txt:null, s0:.005,  entry:.25,  textIn:.33, exit:.44 },
+  { id:'l3', txt:'l3-txt', s0:.0003, entry:.50,  textIn:.60, exit:.80 },
+];
+
+function eio(t) { return t<.5?2*t*t:-1+(4-2*t)*t; }
+function eout(t){ return 1-Math.pow(1-t,3); }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+let contentShown = false;
+
+window.addEventListener('scroll', tick, { passive:true });
+
+function tick() {
+  const immerEl   = document.getElementById('immersive');
+  const immerTop  = immerEl.getBoundingClientRect().top;
+  const totalScroll = immerEl.offsetHeight - WIN_H;
+  const scrolled  = -immerTop;
+  const p         = clamp(scrolled / totalScroll, 0, 1);
+
+  // progress bar (full page)
+  const fullP = window.scrollY / (document.body.scrollHeight - WIN_H);
+  document.getElementById('bar').style.width = (fullP * 100) + '%';
+
+  // nav
+  const nav = document.getElementById('nav');
+  nav.classList.toggle('solid', window.scrollY > WIN_H * 0.95);
+
+  // ── Layer 0 zoom out (0 → 0.22)
+  const p0 = clamp(p / 0.22, 0, 1);
+  const l0 = document.getElementById('l0');
+  l0.style.transform = `scale(${1 + p0 * 11})`;
+  l0.style.opacity   = p0 > .65 ? Math.max(0, 1-(p0-.65)/.35) : '1';
+  document.getElementById('utitle').style.transform = `scale(${1 + p0 * 5})`;
+  document.getElementById('utitle').style.opacity   = p0 > .35 ? Math.max(0, 1-(p0-.35)/.35) : '1';
+  document.getElementById('utagline').style.opacity = p0 > .15 ? Math.max(0, 1-(p0-.15)/.25) : '1';
+  document.getElementById('sh0').style.opacity      = p0 > .08 ? '0' : '1';
+
+  // ── Layers 1-3
+  CFG.forEach((cfg, i) => {
+    if (!cfg) return;
+    const el  = document.getElementById(cfg.id);
+    const txt = cfg.txt ? document.getElementById(cfg.txt) : null;
+
+    // local progress within this layer's full window
+    const winSize = cfg.exit - cfg.entry + .2; // +.2 for exit phase
+    const local   = clamp((p - cfg.entry) / winSize, 0, 1);
+
+    if (local <= 0) {
+      el.style.transform = `scale(${cfg.s0})`;
+      el.style.opacity   = '0';
+      if (txt) txt.style.opacity = '0';
+      return;
+    }
+
+    // phase A: zoom in (0 → textIn_local)
+    const textInLocal = (cfg.textIn - cfg.entry) / winSize;
+    const exitLocal   = (cfg.exit   - cfg.entry) / winSize;
+
+    if (local < textInLocal) {
+      const pA = local / textInLocal;
+      el.style.transform = `scale(${cfg.s0 + (1 - cfg.s0) * eio(pA)})`;
+      el.style.opacity   = `${clamp(pA * 4, 0, 1)}`;
+      if (txt) txt.style.opacity = '0';
+    }
+    // phase B: hold + show text
+    else if (local < exitLocal) {
+      const pB = (local - textInLocal) / (exitLocal - textInLocal);
+      el.style.transform = 'scale(1)';
+      el.style.opacity   = '1';
+      if (txt) { txt.style.opacity = `${clamp(pB * 3, 0, 1)}`; txt.style.transform = `translateY(${(1-clamp(pB*3,0,1))*18}px)`; }
+    }
+    // phase C: zoom through + fade
+    else {
+      const pC = (local - exitLocal) / (1 - exitLocal);
+      el.style.transform = `scale(${1 + pC * 12})`;
+      el.style.opacity   = `${Math.max(0, 1 - pC * 1.5)}`;
+      if (txt) txt.style.opacity = `${Math.max(0, 1 - pC * 4)}`;
+    }
+  });
+
+  // ── Reveal content after immersive
+  if (p >= 0.92 && !contentShown) {
+    contentShown = true;
+    document.getElementById('content').classList.add('show');
+  }
+}
+
+// ── Scroll reveal for content sections
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('on'); ro.unobserve(e.target); }
+  });
+}, { threshold:.08 });
+document.querySelectorAll('.rv').forEach(el => ro.observe(el));
+
+// ── Form
+function ha
